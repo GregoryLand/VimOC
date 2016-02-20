@@ -15,7 +15,9 @@ local globals = {
 	running = true,
 }
 
-function getVar(key)
+local lib = {}
+
+function lib.getVar(key)
 	local temp = globals[key]
 	if temp == nil then
 		error("get:no such key: " .. key)
@@ -23,7 +25,7 @@ function getVar(key)
 	return globals[key]
 end
 
-function setVar(key, value)
+function lib.setVar(key, value)
 	local temp = globals[key]
 	if temp == nil then
 		error( "set:no such key: " .. key )
@@ -39,42 +41,44 @@ end
 local lines = {}
 local length = 0
 
-function getLines()
+function lib.getLines()
 	return lines
 end
 
 -- screen uses the possible nil value that this may return
-function getLine(lineNo)
+function lib.getLine(lineNo)
 	return lines[lineNo]
 end
 
-function getCurLine()
+function lib.getCurLine()
 	return lines[globals["currentLine"]];
 end
 
-function setCurLine( text )
+function lib.setCurLine( text )
 	lines[globals["currentLine"]] = text
 end
 
-function setLine(lineNo, text)
+function lib.setLine(lineNo, text)
 	lines[lineNo] = text
 end
 
-function setLines(inLines)
+function lib.setLines(inLines)
 	lines = inLines
 	length = #lines
 end
 
-function removeLine(lineNo)
+function lib.removeLine(lineNo)
 	table.remove(lines, lineNo)
 	length = length - 1
 end
 
-function insertLine( pos, text )
+function lib.insertLine( pos, text )
 	table.insert(lines, pos, text)
 	length = length + 1
 end
 
-function getLength()
+function lib.getLength()
 	return length
 end
+
+return lib

@@ -1,10 +1,14 @@
-function write()
-	local file = fs.open(global.getVar("fileName"), "w")
+local fs = require("filesystem")
+
+local lib = {}
+
+function lib.write()
+	local file = io.open(global.getVar("fileName"), "w")
 	for i=1, global.getLength() do
 		-- TODO this crashes if the file is write only
-		file.writeLine(global.getLine(i))
+		file:write(global.getLine(i) .. "\n")
 	end
-	file.close()
+	file:close()
 
 	global.setVar("hasChanged", false)
 end
@@ -13,7 +17,7 @@ end
 	Returns the contents of the set file in a table
 	of strings
 ]]--
-function read(path)
+function lib.read(path)
 	local file = io.open(global.getVar("fileName"), "r")
 	local lines = {}
 	if fs.exists( global.getVar("fileName") ) then
@@ -34,3 +38,5 @@ function read(path)
 	end
 	return lines
 end
+
+return lib

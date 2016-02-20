@@ -1,3 +1,15 @@
+-- general libraries
+local event = require("event")
+
+-- vim-specific libraries
+local global = require("vim.global")
+local screen = require("vim.screen")
+local vimode = require("vim.vimode")
+local file = require("vim.file")
+local logger = require("vim.logger")
+
+local lib = {}
+
 local function getNumber( presses, startPos )
 	local noTemp
 	local number = ""
@@ -16,7 +28,7 @@ local function getNumber( presses, startPos )
 		i = i + 1
 		temp = presses[i]
 	end
-	
+
 	if number == "" then
 		number = tonumber(1)
 	else
@@ -26,7 +38,7 @@ local function getNumber( presses, startPos )
 	return number, i, keyAfter
 end
 
-local function parseViCommand( presses ) 
+local function parseViCommand( presses )
 	local numbers = { tonumber(1), tonumber(1) }
 	local otherMod
 
@@ -90,8 +102,6 @@ local function cursorVerticalMove( numberMod )
 		global.setVar("currentColumn", curX)
 end
 
-goToStart = nil
-goToEndOfLine = nil
 -- horizontal deletion delets one character less than the cursor moves,
 -- This is sometimes useful but most of the time not
 local function move( command, numberMod, actionType, otherMod )
@@ -105,8 +115,8 @@ local function move( command, numberMod, actionType, otherMod )
 			local mSpace
 			if otherMod == "space" then mSpace = " " else mSpace = "" end
 			if global.getLine(nextLine) ~= nil then
-				global.setCurLine( 
-					global.getCurLine() .. 
+				global.setCurLine(
+					global.getCurLine() ..
 					mSpace ..
 					global.getLine( nextLine ))
 				global.removeLine( nextLine )
@@ -132,7 +142,7 @@ local function move( command, numberMod, actionType, otherMod )
 
 				local goal = curX + math.abs(numberMod) + backMod
 
-				local outString = 
+				local outString =
 					string.sub( temp, 0, curX - 1 ) ..
 					string.sub( temp, goal )
 
@@ -168,7 +178,7 @@ local function move( command, numberMod, actionType, otherMod )
 			global.setVar("currentColumn", xAfter)
 			global.setVar("actualColumn" , xAfter)
 		end
-		
+
 	elseif command == "vert" then
 		if actionType == "delete" or actionType == "yank" then
 			if numberMod < 0 then
@@ -189,32 +199,34 @@ local function move( command, numberMod, actionType, otherMod )
 	screen.redraw()
 end
 
-goToEndOfLine = function( actionType, subMod )
+local goToEndOfLine = function( actionType, subMod )
 	move(
 		"horiz",
 		string.len(global.getCurLine()) - global.getVar("currentColumn") + 1,
 		actionType, subMod )
 end
+lib.goToEndOfLine = goToEndOfLine
 
 -- this needs to be non local for it to work, maybe, perhaps. I have just given up
-goToStart = function( actionType, location )
+local goToStart = function( actionType, location )
 	-- location can be ( line | text )
-	local wsS, wsE = 
+	local wsS, wsE =
 		string.find( global.getCurLine(), "%s+" )
 	if location == "text" then
 		if wsS ~= 1 then wsE = 0 end
-	else 
-		wsE = 0 
+	else
+		wsE = 0
 	end
 	move( "horiz",
 		  -(global.getVar("currentColumn") - (wsE + 1)),
 		  actionType, subMod)
 end
+lib.goToStart = goToStart
 
 -- command should be a 'char' array
 --
 -- returns if the command triggered something
-function runViCommand( command )
+local function runViCommand( command )
 	-- This is so that a command is't otherMod of itself
 	local commandSub = {}
 	for i=1, #command - 1 do
@@ -264,9 +276,12 @@ function runViCommand( command )
 				global.setVar("topLine", tLine)
 			end
 
-		elseif command[#command] == "f" or 
+		elseif command[#command] == "f" or
 		       command[#command] == "t" then
-		   local event, keyToFind = os.pullEvent("char")
+		   local keyToFind
+       repeat
+         _, _, keyToFind = event.pull("key_down")
+       until keyToFind
 
 
 			local tMod
@@ -276,24 +291,24 @@ function runViCommand( command )
 				tMod = 0
 			end
 			for i=1, numMod do
-				local startPos = 
+				local startPos =
 					math.min(global.getVar("currentColumn") + 1,
 					         string.len(global.getCurLine()))
 				local tempX = string.find(
 					global.getCurLine(),
 					keyToFind,
-					startPos ) - 
-					global.getVar("currentColumn") - 
+					startPos ) -
+					global.getVar("currentColumn") -
 					numMod * tMod or 0
 				move( "horiz", tempX, use, "n" )
 			end
-				
+
 		elseif command[#command] == "l" then
 			move( "horiz", numMod, use, subMod )
-				
+
 		elseif command[#command] == "h" then
 			move( "horiz", -numMod, use, subMod )
-				
+
 		elseif command[#command] == "j" then
 			move( "vert", numMod, use, subMod )
 
@@ -335,7 +350,7 @@ function runViCommand( command )
 				if use == "delete" then tXS = tXS - 1 end
 				move( "horiz", tXS, use, subMod )
 			end
-		
+
 		elseif command[#command] == "e" then
 			for i=1, numMod do
 				local tXS =
@@ -373,7 +388,7 @@ function runViCommand( command )
 				if use == "delete" then tXS = tXS - 1 end
 				move( "horiz", tXS, use, subMod )
 			end
-		
+
 		elseif command[#command] == "E" then
 			for i=1, numMod do
 				local tXS =
@@ -401,7 +416,7 @@ function runViCommand( command )
 				end
 				move( "horiz", moveDist, use, subMod )
 			end
-		
+
 
 		elseif command[#command] == "s" then
 			move( "horiz", numMod - 1, "delete", "i" )
@@ -422,7 +437,7 @@ function runViCommand( command )
 			move( "horiz", numMod - 1, "delete", subMod )
 		elseif command[#command] == "X" then
 			move( "horiz", -numMod - 1, "delete", subMod )
-		
+
 
 
 		elseif command[#command] == "J" then
@@ -437,7 +452,7 @@ function runViCommand( command )
 			else
 				triggered = false
 			end
-			
+
 		elseif command[#command] == "c" then
 			if otherMod == "c" then
 				goToStart( "move", "line" )
@@ -461,13 +476,16 @@ function runViCommand( command )
 			vimode.insertMode("here")
 
 		elseif command[#command] == "r" then
-			local ev, repl = os.pullEvent("char")
+      local repl
+      repeat
+        _, _, repl = event.pull("key_down")
+      until repl
 			move( "horiz", numMod - 1, "delete", subMod )
-			vimode.insertText( 
+			vimode.insertText(
 				"here",
 				string.rep( repl, numMod ))
 			move( "horiz", numMod - 1, "move", "n" )
-			
+
 
 
 		elseif command[#command] == "i" then
@@ -475,7 +493,7 @@ function runViCommand( command )
 			for i=2, numMod do
 				vimode.insertText( "here", str )
 			end
-		
+
 		elseif command[#command] == "I" then
 			if otherMod == "g" then
 				local str = vimode.insertMode("0")
@@ -488,13 +506,13 @@ function runViCommand( command )
 					vimode.insertText( "beginning", str )
 				end
 			end
-		
+
 		elseif command[#command] == "a" then
 			local str = vimode.insertMode("after")
 			for i=2, numMod do
 				vimode.insertText( "here", str )
 			end
-		
+
 		elseif command[#command] == "A" then
 			local str = vimode.insertMode("end")
 			for i=2, numMod do
@@ -521,7 +539,7 @@ function runViCommand( command )
 				global.setVar( "running", false )
 			end
 
-		
+
 
 		else
 			-- if nothing happened then triggered sholud be false
@@ -534,8 +552,9 @@ function runViCommand( command )
 	screen.redraw()
 	return triggered
 end
+lib.runViCommand = runViCommand
 
-local function parseExCommand( text ) 
+local function parseExCommand( text )
 	local len = string.len(text)
 	local value = {}
 	for i=1, #text do
@@ -544,7 +563,7 @@ local function parseExCommand( text )
 	return value
 end
 
-function runExCommand( command )
+local function runExCommand( command )
 	local cmd = parseExCommand( command )
 
 	local fun = {}
@@ -568,3 +587,6 @@ function runExCommand( command )
 		fun[cmd[i]]()
 	end
 end
+lib.runExCommand = runExCommand
+
+return lib

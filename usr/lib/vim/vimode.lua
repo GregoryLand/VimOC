@@ -1,30 +1,44 @@
-function commandMode() 
+-- general libraries
+local event = require("event")
+local keyboard = require("keyboard")
+
+-- vim-specific libraries
+local global = require("vim.global")
+local screen = require("vim.screen")
+local command = require("vim.command")
+local screen = require("vim.screen")
+
+local keys = keyboard.keys
+
+local lib = {}
+
+local function commandMode()
 	local command = ""
 	local pos = 1
-	term.setCursorPos(1, global.getVar("termY"))
+	term.setCursor(1, global.getVar("termY"))
 	term.clearLine()
 	term.write(":")
 
 	-- TODO find better way to 'eat' event
 	os.sleep(0.1)
-	
+
 
 	local running = true
-	local event, key = os.pullEvent()
+	local event, _, char, code = event.pull("key_down")
 	while running do
-		if event == "key" then
-			if key == keys.enter then
+		if code then
+			if code == keys.enter then
 				term.clearLine()
 				running = false
 				return command
 			end
 
-			if key == config.get("escBtn") then
+			if code == keys[config.get("escBtn")] then
 				term.clearLine()
 				running = false
 			end
 
-			if key == keys.backspace then
+			if code == keys.back then
 				term.setCursorPos(pos, global.getVar("termY"))
 
 				command = string.sub(command, 1, string.len(command) - 1)
@@ -35,18 +49,18 @@ function commandMode()
 			end
 		end
 
-		if event == "char" then
-			--command[pos] = key
-			command = command..key
+		if char then
+			--command[pos] = char
+			command = command..char
 			pos = pos + 1
 			term.setCursorPos(pos, global.getVar("termY"))
-			term.write(key)
+			term.write(char)
 		end
-		event, key = os.pullEvent()
+		event, _, char, code = event.pull("key_down")
 	end
 end
 
-function insertText( pos, text )
+local function insertText( pos, text )
 	global.setVar( "hasChanged", true )
 	local line, column
 
@@ -78,7 +92,7 @@ function insertText( pos, text )
 end
 
 -- pos: where should insert mode be entered in realtion to the cursor
-function insertMode( pos )
+local function insertMode( pos )
 	-- TODO find better way to eat event
 	os.sleep(0.1)
 
@@ -93,7 +107,7 @@ function insertMode( pos )
 	elseif pos == "after" then
 		global.setVar("currentColumn", global.getVar("currentColumn") + 1)
 	elseif pos == "beginning" then
-		global.setVar("currentColumn", string.len(string.match(global.getCurLine(), "%s*")) + 1) 
+		global.setVar("currentColumn", string.len(string.match(global.getCurLine(), "%s*")) + 1)
 	elseif pos == "0" then
 		global.setVar("currentColumn", 1)
 	elseif pos == "end" then
@@ -116,11 +130,11 @@ function insertMode( pos )
 	-- TODO the cursor should blink while in insert mode
 	screen.redraw()
 
-	local event, key = os.pullEvent()
+	local event, _, char, code = event.pull("key_down")
 	while true do
-		if event == "key" then
+		if code then
 
-			if key == config.get("escBtn") then
+			if code == keys[config.get("escBtn")] then
 				-- the cursor can be one step to far to the right
 				-- this happens when appending text to a line
 				local strLen = string.len(global.getCurLine())
@@ -132,7 +146,7 @@ function insertMode( pos )
 			end
 
 			-- TODO You currently can backspace past the screen
-			if key == keys.backspace then
+			if code == keys.back then
 				strBefore = string.sub(strBefore, 1, string.len(strBefore) - 1)
 				global.setVar("currentColumn", global.getVar("currentColumn") - 1)
 				global.setLine(global.getVar("currentLine"), strBefore..strAfter)
@@ -142,7 +156,7 @@ function insertMode( pos )
 				--term.setCursorPos(column, line)
 			end
 
-			if key == keys.delete then
+			if code == keys.delete then
 				strAfter = string.sub(strAfter, 2)
 				global.setLine(global.getVar("currentLine"), strBefore..strAfter)
 
@@ -150,7 +164,7 @@ function insertMode( pos )
 			end
 
 			-- TODO this sholud be better
-			if key == keys.enter then
+			if code == keys.enter then
 				global.setVar("hasChanged", true)
 
 				global.setLine(global.getVar("currentLine"), strBefore)
@@ -169,26 +183,26 @@ function insertMode( pos )
 		end
 
 		-- text entry
-		if event == "char" then
+		if char then
 			global.setVar("hasChanged", true)
 			global.setVar("currentColumn", global.getVar("currentColumn") + 1)
 
 			strBefore = strBefore..key
 			strChange = strChange .. key
-			
+
 			global.setLine(global.getVar("currentLine"), strBefore..strAfter)
 
 			screen.redraw()
 		end
 
 		-- pull next event
-		event, key = os.pullEvent()
+		event, _, char, code = event.pull("key_down")
 	end
 
 	return strChange
 end
 
-function normalMode()
+local function normalMode()
 	term.setCursorBlink(false)
 
 
@@ -196,21 +210,21 @@ function normalMode()
 
 	global.setVar("running", true)
 	while global.getVar("running") do
-		local event, key = os.pullEvent()
+		local event, _, char, code = event.pull("key_down")
 
-		if event == "key" then
-			if key == config.get("escBtn") then
+		if code then
+			if code == keys[config.get("escBtn")] then
 				keyPresses = {}
 			end
 		end
-		if event == "char" then
-			if key == ":" then
+		if char then
+			if char == ":" then
 				local cmd = commandMode() or ""
 				command.runExCommand( cmd )
 				keyPresses = {}
 			end
 
-			keyPresses[#keyPresses + 1] = key
+			keyPresses[#keyPresses + 1] = char
 
 			local triggered = command.runViCommand( keyPresses )
 
@@ -220,3 +234,10 @@ function normalMode()
 		end
 	end
 end
+
+lib.commandMode = commandMode
+lib.insertText = insertText
+lib.insertMode = insertMode
+lib.normalMode = normalMode
+
+return lib

@@ -1,27 +1,21 @@
-local apiPath = "/utils/vimfiles/"
-local apis = {
-	"config",
-	"global",
-	"command",
-	"screen",
-	"vimode",
-	"file",
-	"logger",
-}
-for i=1, #apis do
-	local test = os.loadAPI(apiPath..apis[i])
-	if not test then
-		error(apis[i])
-	end
-end
+-- general libraries
+local component = require("component")
 
+-- vim-specific libraries
+local config = require("vim.config")
+local global = require("vim.global")
+local command = require("vim.command")
+local screen = require("vim.screen")
+local vimode = require("vim.vimode")
+local file = require("vim.file")
+local logger = require("vim.logger")
 
-
+local gpu = component.gpu
 
 -- start main
 local args = {...}
 
-local termX, termY = term.getSize()
+local termX, termY = gpu.getResolution()
 global.setVar("termX", termX)
 global.setVar("termY", termY)
 
@@ -66,12 +60,5 @@ logger.info("log file created")
 
 vimode.normalMode()
 
-
--- Apparently you don't have to unload the api's if they are loaded localy
---[[
-for i=1, #apis do
-	os.unloadAPI(apiPath..apis[i])
-end
-]]
-term.setCursorPos(1, 1)
+term.setCursor(1, 1)
 term.clear()

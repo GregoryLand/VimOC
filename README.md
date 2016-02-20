@@ -1,17 +1,24 @@
+# VimOC - VimCC for OpenOS
+
+This is a port of VimCC to OpenOS for OpenComputers.
+
+## Installation
+This may be added to OPPM later. for now, download the files manually.
+
 # VimCC
-Dissatisfied with the existing editor in ComputerCraft (seriously, try using it 
+Dissatisfied with the existing editor in ComputerCraft (seriously, try using it
 while relying on alt-gr for special characters!) so I decided to port Vim.
 
 This is far from a perfect port, but it gets the job done for quick code edits
 on the fly. But I would still recommend opening the code files in a more well
-built editor for longer editing. 
+built editor for longer editing.
 
 ## Installation
 There are two ways to install the program:
 ### Via the Installer
 The installer is both available as part of this [repo](./installer),
 and as a download from pastebin, which can be directly gotten in the game by
-running the following command in a ComputerCraft terminal: 
+running the following command in a ComputerCraft terminal:
 
 	pastebin get j1NxmAzb installer
 
@@ -57,7 +64,7 @@ Currently almost nothing is logged, but the support is there.
 - `~` (switch case)
 - buffers (at least one)
 - undo
-- reverse find (`F` & `T`) 
+- reverse find (`F` & `T`)
 - `.` (repeat last command)
 - support for commands executed by holding down `CTRL` and another key
 - Replace mode
@@ -76,4 +83,3 @@ Currently almost nothing is logged, but the support is there.
 If you are interested in trying to add new features or fix the already existing
 ones, look to the [command](./vimfiles/command) since there is where both the vi
 and the ex commands are defined.
-

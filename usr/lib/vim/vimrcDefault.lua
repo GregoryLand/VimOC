@@ -2,7 +2,7 @@
 -- I WOULD STRONGLY RECOMMEND AGAINST EDITING THIS FILE,
 -- SINCE IF THE PROGRAM WILL CRASH IF A VALUE HERE IS
 -- MISSING OR INCORRECT.
--- A PERSONAL CONFIGURATION FILE CAN BE CREATED IN '/.vimrc'
+-- A PERSONAL CONFIGURATION FILE CAN BE CREATED IN '~/.vimrc'
 -- THAT FILE CAN'T HAVE ANY INCORRECT VALUES, BUT FIELDS
 -- NOT NEEDED CAN JUST BE LEFT OUT FROM THAT FILE.
 --
@@ -26,9 +26,8 @@ logLevel = "NONE"
 
 --[[ ESCAPE BUTTON
 Possible values:
-	anything found in the keys api
-	http://www.comuptercraft.info/wiki/Keys_(API)
+	anything found in the keyboard api
+	https://github.com/MightyPirates/OpenComputers/blob/master-MC1.7.10/src/main/resources/assets/opencomputers/loot/OpenOS/lib/tools/keyboard_full.lua
 	But I would recommend against taking a key used for something else...
 ]]--
-escBtn = keys.tab
-
+escBtn = "tab"

@@ -1,21 +1,40 @@
-local defaultPath = "/utils/vimfiles/vimrcDefault"
-local userPath = "/.vimrc"
+local fs = require("filesystem")
+local package = require("package")
 
-local isDefault = os.loadAPI(defaultPath)
-if not isDefault then
-	error( "Sucks to be you, the vimrcDefault is missing (or possibly just broken)" )
-end
-os.loadAPI(userPath)
+local userPath = "~/.vimrc"
 
-function get( key )
-	local val
-	if fs.exists("/.vimrc") then
-		val = _G[".vimrc"][key]
-		if val == nil then 
-			val = vimrcDefault[key]
-		end
-	else
-		val = vimrcDefault[key]
-	end
-	return val
+local lib = {}
+
+local defaultPath, msg = package.searchpath("vim.vimrcDefault")
+if not defaultPath then
+  error( "Sucks to be you, the vimrcDefault is missing (or possibly just broken). Error: " .. msg)
 end
+
+local cfg = {}
+
+local function loadCfg(path)
+  local cfgenv = {}
+  setmetatable(cfgenv, {__index = _G})
+  local cfgfunc, err = loadfile(path, nil, cfgenv)
+  local success
+  if cfgfunc then
+    success, err = pcall(cfgfunc)
+  end
+  if cfgfunc and success then
+    for k,v in pairs(cfgenv) do
+      cfg[k] = v
+    end
+  end
+end
+
+loadCfg(defaultPath)
+
+if fs.exists(userPath) then
+  loadCfg(userPath)
+end
+
+function lib.get( key )
+  return cfg[key]
+end
+
+return lib

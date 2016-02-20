@@ -1,6 +1,24 @@
+-- general libraries
+local component = require("component")
+local event = require("event")
+local term = require("term")
+
+local gpu = component.gpu
+
+local lib = {}
+
+local function blit(text, foreground, background)
+  local back, front = gpu.getBackground(), gpu.getForeground()
+  gpu.setBackground(background)
+  gpu.setForeground(foreground)
+  term.write(text)
+  gpu.setBackground(back)
+  gpu.setForeground(front)
+end
+
 function redraw()
 	--term.clear()
-	term.setCursorPos(1, 1)
+	term.setCursor(1, 1)
 
 	local topLine = global.getVar("topLine")
 	local lineskip = 0
@@ -9,7 +27,7 @@ function redraw()
 	-- to long to render instead an '@' shows up indicating that there is more
 	-- TODO also, then a line as longer than the number of characters on the screen,
 	-- displaying lines before the lines breaks down
-	-- 
+	--
 	-- This is a while loop to be able to do the check is go around
 	local i=topLine
 	while i <= topLine + global.getVar("termY") - 2 - lineskip do
@@ -19,7 +37,7 @@ function redraw()
 			for l=1, string.len(tLine) do
 				if i == global.getVar("currentLine") and
 				   l == global.getVar("currentColumn") then
-					term.blit(tLine:sub(l,l), "f", "0")
+					blit(tLine:sub(l,l), 0x191919, 0xF0F0F0)
 				else
 					term.write(tLine:sub(l,l))
 				end
@@ -32,7 +50,7 @@ function redraw()
 			-- if inputing data at the end of the line
 			if global.getVar("currentColumn") == string.len(tLine) + 1 and
 			   global.getVar("currentLine") == i then
-				term.blit(" ", "f", "0")
+				blit(" ", 0x191919, 0xF0F0F0)
 			end
 		else
 			io.write("~")
@@ -44,15 +62,16 @@ end
 
 -- for error messages shown at the bottom of the screen
 function echoerr( message )
-	term.setCursorPos(1, global.getVar("termY"))
-	term.setBackgroundColour( colors.red )
+	term.setCursor(1, global.getVar("termY"))
+  local back = gpu.getBackground()
+	gpu.setBackground( 0xCC4C4C )
 	term.write( message )
-	term.setBackgroundColour( colors.black )
+	gpu.setBackground( back )
 end
 
 -- for other messages to be shown at the bottom of the screen
 function echo( message )
-	term.setCursorPos(1, global.getVar("termY"))
+	term.setCursor(1, global.getVar("termY"))
 	term.write( message )
 end
 
@@ -78,7 +97,7 @@ function drawLine( lineNo )
 	for l=1, string.len(tLine) do
 		if i == global.getVar("currentLine") and
 		   l == global.getVar("currentColumn") then
-			term.blit(tLine:sub(l,l), "f", "0")
+			blit(tLine:sub(l,l), 0x191919, 0xF0F0F0)
 		else
 			term.write(tLine:sub(l,l))
 		end
@@ -90,14 +109,12 @@ function drawLine( lineNo )
 end
 
 function debug( message )
-	term.setCursorPos(global.getVar("termX") - string.len(message) + 1,
+	term.setCursor(global.getVar("termX") - string.len(message) + 1,
 	                  global.getVar("termY"))
 	if message==nil then
 		term.write("nil")
 	else
 		term.write(message)
 	end
-	os.pullEvent("key")
+	event.pull("key_down")
 end
-
-

@@ -1,30 +1,34 @@
+local lib = {}
+
 local filename
 local file
-logLevel = {
+local logLevel = {
 	NONE = 0,
 	WARNINGS = 5,
 	ALL = 10,
 }
 local level
 
-function init( path, llevel )
+lib.logLevel = logLevel
+
+function lib.init( path, llevel )
 	level = logLevel[llevel]
 	if level > 0 then
 		filename = path
-		file = fs.open(filename, "a")
+		file = io.open(filename, "a")
 	end
 end
 
-function info( message )
-	if level > 0 then 
-		file.writeLine("INFO:"..message)
-		file.flush()
+function lib.info( message )
+	if level > 0 then
+		file:write("INFO:"..message.."\n")
+		file:flush()
 	end
 end
 
-function warning( message )
+function lib.warning( message )
 	if level > 5 then
-		file.writeLine("WARN:"..message)
-		file.flush()
+		file:write("WARN:"..message.."\n")
+		file:flush()
 	end
 end
