@@ -16,9 +16,9 @@
 
 --[[ LOG LEVEL
 Possible values:
-	ALL
-	WARNINGS
-	NONE
+  ALL
+  WARNINGS
+  NONE
 
 Note that the logs probably aren't readable by anyone at the moment
 ]]--
@@ -26,8 +26,8 @@ logLevel = "NONE"
 
 --[[ ESCAPE BUTTON
 Possible values:
-	anything found in the keyboard api
-	https://github.com/MightyPirates/OpenComputers/blob/master-MC1.7.10/src/main/resources/assets/opencomputers/loot/OpenOS/lib/tools/keyboard_full.lua
-	But I would recommend against taking a key used for something else...
+  anything found in the keyboard api
+  https://github.com/MightyPirates/OpenComputers/blob/master-MC1.7.10/src/main/resources/assets/opencomputers/loot/OpenOS/lib/tools/keyboard_full.lua
+  But I would recommend against taking a key used for something else...
 ]]--
 escBtn = "tab"

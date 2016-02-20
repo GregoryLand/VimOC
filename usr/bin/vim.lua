@@ -1,5 +1,8 @@
 -- general libraries
 local component = require("component")
+local fs = require("filesystem")
+local shell = require("shell")
+local term = require("term")
 
 -- vim-specific libraries
 local config = require("vim.config")
@@ -24,13 +27,13 @@ global.setVar("hasChanged", false)
 
 -- TODO check if file is read only
 if #args < 1 then
-	error("please specify a file")
+  error("please specify a file")
 end
 
 local sPath = shell.resolve( args[1] )
-if fs.exists( sPath ) and fs.isDir( sPath ) then
-	print( "Cannot edit a directory." )
-	return
+if fs.exists( sPath ) and fs.isDirectory( sPath ) then
+  print( "Cannot edit a directory." )
+  return
 end
 global.setVar("fileName", sPath)
 
@@ -51,14 +54,16 @@ screen.redraw()
 
 
 
-if not fs.isDir("/.vimlog") then
-	fs.makeDir("/.vimlog")
+if not fs.isDirectory("/.vimlog") then
+  fs.makeDirectory("/.vimlog")
 end
-logger.init("/.vimlog/vimlog-"..os.day().."-"..os.time(), config.get("logLevel"))
+logger.init("/.vimlog/vimlog-"..os.date("%Y-%m-%d--%H-%M-%S"), config.get("logLevel"))
 logger.info("log file created")
 
 
 vimode.normalMode()
+
+logger.stop()
 
 term.setCursor(1, 1)
 term.clear()

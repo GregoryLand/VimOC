@@ -1,1 +1,9 @@
-# Created by .ignore support plugin (hsz.mobi)
+/*
+
+# directories
+!/usr
+
+# files
+!/.gitignore
+!/installer
+!/README.md
