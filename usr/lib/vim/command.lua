@@ -296,12 +296,10 @@ local function runViCommand( command )
 					 local startPos =
 						math.min(global.getVar("currentColumn") + 1,
 						         string.len(global.getCurLine()))
-					local tempX = string.find(
-						global.getCurLine(),
-						keyToFind,
-						startPos ) -
-						global.getVar("currentColumn") - --TODO this might have a nil problem
-						numMod * tMod or 0
+					 local tempX = string.find( global.getCurLine(), keyToFind,
+						 startPos ) or (global.getVar("currentColumn") + tMod) -
+									 global.getVar("currentColumn") -
+									 numMod * tMod or 0
 					move( "horiz", tempX, use, "n" )
 				end
 			end
