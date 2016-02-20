@@ -3,6 +3,9 @@ local component = require("component")
 local event = require("event")
 local term = require("term")
 
+-- vim-specific libraries
+local global = require("vim.global")
+
 local gpu = component.gpu
 
 local lib = {}
@@ -16,7 +19,7 @@ local function blit(text, foreground, background)
   gpu.setForeground(front)
 end
 
-function redraw()
+local function redraw()
 	--term.clear()
 	term.setCursor(1, 1)
 
@@ -61,7 +64,7 @@ function redraw()
 end
 
 -- for error messages shown at the bottom of the screen
-function echoerr( message )
+local function echoerr( message )
 	term.setCursor(1, global.getVar("termY"))
   local back = gpu.getBackground()
 	gpu.setBackground( 0xCC4C4C )
@@ -70,13 +73,13 @@ function echoerr( message )
 end
 
 -- for other messages to be shown at the bottom of the screen
-function echo( message )
+local function echo( message )
 	term.setCursor(1, global.getVar("termY"))
 	term.write( message )
 end
 
 -- returns false if line couldn't be redrawn
-function redrawLine( lineNo )
+local function redrawLine( lineNo )
 	local topLine = global.getVar("topLine")
 	local line = global.getLine( lineNo )
 
@@ -92,7 +95,7 @@ function redrawLine( lineNo )
 	end
 end
 
-function drawLine( lineNo )
+local function drawLine( lineNo )
 	local tLine = global.getLine( lineNo )
 	for l=1, string.len(tLine) do
 		if i == global.getVar("currentLine") and
@@ -108,7 +111,7 @@ function drawLine( lineNo )
 	end
 end
 
-function debug( message )
+local function debug( message )
 	term.setCursor(global.getVar("termX") - string.len(message) + 1,
 	                  global.getVar("termY"))
 	if message==nil then
@@ -118,3 +121,12 @@ function debug( message )
 	end
 	event.pull("key_down")
 end
+
+lib.redraw = redraw
+lib.echoerr = echoerr
+lib.echo = echo
+lib.redrawLine = redrawLine
+lib.drawLine = drawLine
+lib.debug = debug
+
+return lib

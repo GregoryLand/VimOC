@@ -13,6 +13,16 @@ local keys = keyboard.keys
 
 local lib = {}
 
+local function noControlChar(char)
+  if not pcall(string.char, char) then
+    return 2
+  elseif string.find(string.char(char), "[%g%s]+") then
+    return 1
+  else
+    return string.char(char) ~= nil
+  end
+end
+
 local function commandMode()
   local command = ""
   local pos = 1
@@ -50,8 +60,8 @@ local function commandMode()
       end
     end
 
-    if char and char ~= 0 then
-      char = unicode.char(char)
+    if char and noControlChar(char) == 1 then
+      char = string.char(char)
       --command[pos] = char
       command = command..char
       pos = pos + 1
@@ -186,7 +196,7 @@ local function insertMode( pos )
     end
 
     -- text entry
-    if char and char ~= 0 then
+    if char and noControlChar(char) then
       char = unicode.char(char)
       global.setVar("hasChanged", true)
       global.setVar("currentColumn", global.getVar("currentColumn") + 1)
@@ -224,7 +234,7 @@ local function normalMode()
         keyPresses = {}
       end
     end
-    if char and char ~= 0 then
+    if char and noControlChar(char) then
       char = unicode.char(char)
       if char == ":" then
         local cmd = commandMode() or ""
@@ -243,6 +253,7 @@ local function normalMode()
   end
 end
 
+lib.noControlChar = noControlChar
 lib.commandMode = commandMode
 lib.insertText = insertText
 lib.insertMode = insertMode

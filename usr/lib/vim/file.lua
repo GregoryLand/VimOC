@@ -1,4 +1,8 @@
+-- general libraries
 local fs = require("filesystem")
+
+-- vim-specific libraries
+local global = require("vim.global")
 
 local lib = {}
 

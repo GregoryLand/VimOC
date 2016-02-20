@@ -37,7 +37,9 @@ function lib.warning( message )
 end
 
 function lib.stop()
-  file:close()
+  if file then
+    file:close()
+  end
 end
 
 return lib

@@ -278,29 +278,32 @@ local function runViCommand( command )
 
 		elseif command[#command] == "f" or
 		       command[#command] == "t" then
-		   local keyToFind
+		   local _, keyToFind
        repeat
          _, _, keyToFind = event.pull("key_down")
        until keyToFind
 
+			 if keyToFind and vimode.noControlChar(keyToFind) == 1 then
+         keyToFind = string.char(keyToFind)
 
-			local tMod
-			if command[#command] == "t" then
-				tMod = 1/numMod
-			else
-				tMod = 0
-			end
-			for i=1, numMod do
-				local startPos =
-					math.min(global.getVar("currentColumn") + 1,
-					         string.len(global.getCurLine()))
-				local tempX = string.find(
-					global.getCurLine(),
-					keyToFind,
-					startPos ) - 
-					global.getVar("currentColumn") - --TODO this might have a nil problem
-					numMod * tMod or 0
-				move( "horiz", tempX, use, "n" )
+				 local tMod
+				 if command[#command] == "t" then
+				 	 tMod = 1/numMod
+				 else
+					 tMod = 0
+				 end
+				 for i=1, numMod do
+					 local startPos =
+						math.min(global.getVar("currentColumn") + 1,
+						         string.len(global.getCurLine()))
+					local tempX = string.find(
+						global.getCurLine(),
+						keyToFind,
+						startPos ) -
+						global.getVar("currentColumn") - --TODO this might have a nil problem
+						numMod * tMod or 0
+					move( "horiz", tempX, use, "n" )
+				end
 			end
 
 		elseif command[#command] == "l" then
@@ -476,16 +479,18 @@ local function runViCommand( command )
 			vimode.insertMode("here")
 
 		elseif command[#command] == "r" then
-      local repl
+      local _, repl
       repeat
         _, _, repl = event.pull("key_down")
       until repl
-			move( "horiz", numMod - 1, "delete", subMod )
-			vimode.insertText(
-				"here",
-				string.rep( repl, numMod ))
-			move( "horiz", numMod - 1, "move", "n" )
-
+			if repl and vimode.noControlChar(repl) == 1 then
+        repl = string.char(repl)
+				move( "horiz", numMod - 1, "delete", subMod )
+				vimode.insertText(
+					"here",
+					string.rep( repl, numMod ))
+				move( "horiz", numMod - 1, "move", "n" )
+			end
 
 
 		elseif command[#command] == "i" then
