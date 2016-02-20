@@ -30,7 +30,7 @@ function lib.read(path)
 		file:close()
 
 		-- inserts a new line if the file is complealty empty
-		if( lines[0] == nil ) then
+		if( lines[1] == nil ) then
 			lines[#lines + 1] = ""
 		end
 	else

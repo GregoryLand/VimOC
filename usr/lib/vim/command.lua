@@ -297,8 +297,8 @@ local function runViCommand( command )
 				local tempX = string.find(
 					global.getCurLine(),
 					keyToFind,
-					startPos ) -
-					global.getVar("currentColumn") -
+					startPos ) - 
+					global.getVar("currentColumn") - --TODO this might have a nil problem
 					numMod * tMod or 0
 				move( "horiz", tempX, use, "n" )
 			end
@@ -584,7 +584,11 @@ local function runExCommand( command )
 
 	for i=1, #cmd do
 		--screen.echoerr(cmd[i])
-		fun[cmd[i]]()
+		if fun[cmd[i]] ~= nil then
+			fun[cmd[i]]()
+		else
+			screen.echoerr("No such command")
+		end
 	end
 end
 lib.runExCommand = runExCommand
