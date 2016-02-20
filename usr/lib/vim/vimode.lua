@@ -19,7 +19,7 @@ local function noControlChar(char)
   elseif string.find(string.char(char), "[%g%s]+") then
     return 1
   else
-    return string.char(char) ~= nil
+    return false
   end
 end
 
