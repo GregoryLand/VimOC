@@ -6,7 +6,9 @@ This is a port of VimCC to OpenOS for OpenComputers.
 This may be added to OPPM later. For now, download the files manually.
 
 # VimCC
-Dissatisfied with the existing editor in ComputerCraft (seriously, try using it
+**By default `tab` is binded to exit insert mode, this can be rebound in the vimrc!**
+
+Dissatisfied with the existing editor in ComputerCraft (seriously, try using it 
 while relying on alt-gr for special characters!) so I decided to port Vim.
 
 This is far from a perfect port, but it gets the job done for quick code edits
