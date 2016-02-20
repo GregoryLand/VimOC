@@ -3,7 +3,7 @@
 This is a port of VimCC to OpenOS for OpenComputers.
 
 ## Installation
-This may be added to OPPM later. for now, download the files manually.
+This may be added to OPPM later. For now, download the files manually.
 
 # VimCC
 Dissatisfied with the existing editor in ComputerCraft (seriously, try using it
