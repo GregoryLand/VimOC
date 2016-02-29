@@ -15,6 +15,11 @@ This is far from a perfect port, but it gets the job done for quick code edits
 on the fly. But I would still recommend opening the code files in a more well
 built editor for longer editing.
 
+## Forks
+A fork of this program for the "OpenComputers" mod is available 
+[here](https://github.com/Vexatos/VimOC). This is an "official" port, but I'm
+not personally responsible for its development.
+
 ## Installation
 There are two ways to install the program:
 ### Via the Installer
@@ -22,9 +27,7 @@ The installer is both available as part of this [repo](./installer),
 and as a download from pastebin, which can be directly gotten in the game by
 running the following command in a ComputerCraft terminal:
 
-	pastebin get j1NxmAzb installer
-
-and then running the installer program
+	pastebin run j1NxmAzb
 
 ### Manually
 download all the files from here.
@@ -63,7 +66,6 @@ Currently almost nothing is logged, but the support is there.
 .
 ### Unsupported Features
 - Ex commands!
-- `~` (switch case)
 - buffers (at least one)
 - undo
 - reverse find (`F` & `T`)
